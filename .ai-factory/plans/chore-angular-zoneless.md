@@ -72,12 +72,12 @@ dependency and fixes two patterns that are technically incorrect in zoneless mod
 
 ### Phase 3 — Verification & Docs (Tasks 6–7)
 
-**Task 6 — Build & smoke test** _(blocked by Tasks 1–5)_
+**[x] Task 6 — Build & smoke test**
 - Run `cd frontend && npm run build`
 - Verify: no TypeScript errors, no zone.js warnings in browser console
 - Smoke test: home → location detail → back → another location → search
 
-**Task 7 — Update documentation** _(blocked by Task 6)_
+**[x] Task 7 — Update documentation**
 - `docs/architecture.md` — add zoneless mode note
 - `.ai-factory/ARCHITECTURE.md` — add to anti-patterns: `❌ ChangeDetectionStrategy.Default in zoneless mode`
 - `MEMORY.md` — add "Angular zoneless mode"
