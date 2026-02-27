@@ -4,13 +4,12 @@ import {
   inject,
   signal,
   OnInit,
-  OnDestroy,
   DestroyRef
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SearchApiService, SearchResultItem, SearchResults } from '../../core/api/search-api.service';
 import { LocationApiService, LocationTreeNode } from '../../core/api/location-api.service';
@@ -466,7 +465,7 @@ import { TelegramService } from '../../telegram/telegram.service';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SearchComponent implements OnInit, OnDestroy {
+export class SearchComponent implements OnInit {
   private readonly searchApiService = inject(SearchApiService);
   private readonly locationApiService = inject(LocationApiService);
   private readonly telegramService = inject(TelegramService);
@@ -514,9 +513,6 @@ export class SearchComponent implements OnInit, OnDestroy {
   /** Search input subject for debouncing */
   private readonly searchSubject = new Subject<string>();
 
-  /** Destroy subject */
-  private readonly destroy$ = new Subject<void>();
-
   /** Items per page */
   private readonly pageSize = 20;
 
@@ -529,11 +525,6 @@ export class SearchComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupSearchDebounce();
     this.handleQueryParams();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**
@@ -658,11 +649,13 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   private setupSearchDebounce(): void {
+    console.debug('[Search] Debounce pipeline initialized');
     this.searchSubject
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        tap(query => {
+        tap((query: string) => {
+          console.debug('[Search] Query changed: %s', query);
           if (!query.trim()) {
             this.results.set([]);
             this.totalCount.set(0);
@@ -672,9 +665,9 @@ export class SearchComponent implements OnInit, OnDestroy {
             this.currentOffset = 0;
           }
         }),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe(query => {
+      .subscribe((query: string) => {
         if (query.trim()) {
           this.performSearch(query);
         }

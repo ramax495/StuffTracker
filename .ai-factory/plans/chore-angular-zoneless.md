@@ -56,13 +56,13 @@ dependency and fixes two patterns that are technically incorrect in zoneless mod
 
 ### Phase 2 — Pattern Fixes (Tasks 4–5)
 
-**Task 4 — `LocationDetailComponent`: Fix effect+subscribe pattern**
+**[x] Task 4 — `LocationDetailComponent`: Fix effect+subscribe pattern**
 - File: `frontend/src/app/features/location/location-detail/location-detail.component.ts`
 - Replace `effect(() => { this.loadLocation() })` with `toObservable(this.id).pipe(switchMap(...))` pattern
 - Uses proper `switchMap` cancellation — no duplicate in-flight requests on route change
 - Log: `console.debug('[LocationDetail] Loading location id=%s', id)` / `console.debug('[LocationDetail] Location loaded: %o', location)`
 
-**Task 5 — `SearchComponent`: Unify destroy pattern**
+**[x] Task 5 — `SearchComponent`: Unify destroy pattern**
 - File: `frontend/src/app/features/search/search.component.ts`
 - Remove `private destroy$ = new Subject<void>()` and `ngOnDestroy`
 - Replace `takeUntil(this.destroy$)` → `takeUntilDestroyed(this.destroyRef)` in debounce pipeline

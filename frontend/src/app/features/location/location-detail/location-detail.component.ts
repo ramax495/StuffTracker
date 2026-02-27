@@ -7,11 +7,12 @@ import {
   OnDestroy,
   DestroyRef,
   input,
-  computed,
-  effect
+  computed
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { switchMap, catchError } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
 import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs';
 import { LocationCardComponent } from '../../../shared/components/location-card';
 import { ItemListComponent } from '../../../shared/components/item-list';
@@ -374,10 +375,31 @@ export class LocationDetailComponent implements OnInit, OnDestroy {
   private readonly mainButtonCallback = () => this.navigateToAddItem();
 
   constructor() {
-    // Subscribe to route param changes and reload location
-    effect(() => {
-      this.loadLocation();
-    });
+    // React to route param changes; switchMap cancels in-flight requests when id changes
+    toObservable(this.id)
+      .pipe(
+        switchMap(id => {
+          console.debug('[LocationDetail] Loading location id=%s', id);
+          this.isLoading.set(true);
+          this.error.set(null);
+          return this.locationApiService.getLocation(id).pipe(
+            catchError(err => {
+              const errorMessage = err.message || 'Failed to load location';
+              console.error('[LocationDetail] Failed to load location', err);
+              this.error.set(errorMessage);
+              this.isLoading.set(false);
+              this.toastService.error(errorMessage);
+              return EMPTY;
+            })
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(location => {
+        console.debug('[LocationDetail] Location loaded: %o', location);
+        this.location.set(location);
+        this.isLoading.set(false);
+      });
   }
 
   ngOnInit(): void {
@@ -406,9 +428,11 @@ export class LocationDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load location details from API
+   * Manually reload location data (used for "Try Again" and after move).
+   * For route-param-driven loading, see the toObservable pipeline in the constructor.
    */
   loadLocation(): void {
+    console.debug('[LocationDetail] Manual reload for location id=%s', this.id());
     this.isLoading.set(true);
     this.error.set(null);
 
@@ -417,11 +441,13 @@ export class LocationDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (location) => {
+          console.debug('[LocationDetail] Location reloaded: %o', location);
           this.location.set(location);
           this.isLoading.set(false);
         },
         error: (err) => {
           const errorMessage = err.message || 'Failed to load location';
+          console.error('[LocationDetail] Failed to reload location', err);
           this.error.set(errorMessage);
           this.isLoading.set(false);
           this.toastService.error(errorMessage);
