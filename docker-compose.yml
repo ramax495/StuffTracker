@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: stufftracker-db
+    environment:
+      POSTGRES_USER: stufftracker
+      POSTGRES_PASSWORD: stufftracker_dev_password
+      POSTGRES_DB: stufftracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stufftracker -d stufftracker"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: stufftracker-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=stufftracker;Username=stufftracker;Password=stufftracker_dev_password
+      - Telegram__BotToken=${Telegram__BotToken:-}
+      - Telegram__DevMode=${Telegram__DevMode:-false}
+      - Telegram__DevUserId=${Telegram__DevUserId:-123456789}
+      - Telegram__DevUserFirstName=${Telegram__DevUserFirstName:-Developer}
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - full
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: stufftracker-web
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    profiles:
+      - full
+
+volumes:
+  postgres_data:
