@@ -3,13 +3,15 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
 import { TelegramService } from './telegram/telegram.service';
 import { NavigationService } from './core/navigation.service';
+import { ThemeService } from './core/theme/theme.service';
 import { ErrorToastComponent } from './shared/components/error-toast';
+import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, ErrorToastComponent],
+  imports: [RouterOutlet, ErrorToastComponent, ThemeToggleComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -17,6 +19,7 @@ export class App implements OnInit {
   private readonly router = inject(Router);
   private readonly telegramService = inject(TelegramService);
   private readonly navigationService = inject(NavigationService);
+  private readonly themeService = inject(ThemeService);
   private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
@@ -42,6 +45,9 @@ export class App implements OnInit {
 
       // Initialize navigation service for BackButton management
       this.navigationService.initialize();
+
+      // Initialize theme from localStorage / Telegram / system preference
+      this.themeService.initialize();
     }
   }
 

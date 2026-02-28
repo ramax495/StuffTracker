@@ -1,0 +1,25 @@
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background-color: var(--tg-theme-secondary-bg-color);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  box-shadow: var(--shadow-md);
+
+  &:active {
+    background-color: var(--tg-theme-bg-color);
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 22px;
+    height: 22px;
+    color: var(--tg-theme-accent-text-color);
+  }
+}
