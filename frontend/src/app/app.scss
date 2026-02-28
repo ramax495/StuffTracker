@@ -16,6 +16,10 @@
   z-index: var(--z-fixed);
   padding: var(--spacing-sm);
   padding-top: calc(var(--spacing-sm) + env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .app-header__search-btn {

@@ -122,6 +122,37 @@ button {
   --z-modal: 500;
   --z-popover: 600;
   --z-tooltip: 700;
+
+  /* Theme */
+  color-scheme: light dark;
+}
+
+/* --------------------------------------------------------------------------
+   Dark Theme
+   Applied when ThemeService sets data-theme="dark" on <html>.
+   Overrides Telegram theme defaults with iOS-style dark palette.
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] {
+  --tg-theme-bg-color: #1c1c1e;
+  --tg-theme-text-color: #ffffff;
+  --tg-theme-hint-color: #8e8e93;
+  --tg-theme-link-color: #0a84ff;
+  --tg-theme-button-color: #0a84ff;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #2c2c2e;
+  --tg-theme-header-bg-color: #1c1c1e;
+  --tg-theme-accent-text-color: #0a84ff;
+  --tg-theme-section-bg-color: #2c2c2e;
+  --tg-theme-section-header-text-color: rgba(235, 235, 245, 0.6);
+  --tg-theme-subtitle-text-color: #8e8e93;
+  --tg-theme-destructive-text-color: #ff453a;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+}
+
+html {
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 /* --------------------------------------------------------------------------
