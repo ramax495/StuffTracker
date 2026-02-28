@@ -87,6 +87,16 @@ import { ErrorToastService } from '../../shared/components/error-toast';
               </svg>
               <span>Add Location</span>
             </button>
+            <button
+              type="button"
+              class="home-quick-action home-quick-action--secondary"
+              (click)="navigateToAddItem()"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+              </svg>
+              <span>Add Item</span>
+            </button>
           </div>
 
           <div class="home-locations__grid">
@@ -210,6 +220,11 @@ import { ErrorToastService } from '../../shared/components/error-toast';
         transform: scale(0.98);
       }
     }
+
+    .home-quick-action--secondary {
+      background-color: var(--tg-theme-secondary-bg-color);
+      color: var(--tg-theme-text-color);
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -273,6 +288,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   navigateToCreateLocation(): void {
     this.triggerHapticFeedback();
     this.router.navigate(['/location/new']);
+  }
+
+  /**
+   * Navigate to add item form (global, no pre-selected location)
+   */
+  navigateToAddItem(): void {
+    this.triggerHapticFeedback();
+    this.router.navigate(['/add-item']);
   }
 
   private setupMainButton(): void {

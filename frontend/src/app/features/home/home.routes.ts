@@ -30,5 +30,10 @@ export const homeRoutes: Routes = [
     path: 'location/:locationId/add-item',
     loadComponent: () => import('../item/item-form').then(m => m.ItemFormComponent),
     title: 'Add Item - StuffTracker'
+  },
+  {
+    path: 'add-item',
+    loadComponent: () => import('../item/item-form').then(m => m.ItemFormComponent),
+    title: 'Add Item - StuffTracker'
   }
 ];

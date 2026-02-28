@@ -18,8 +18,12 @@ import {
   CreateItemRequest,
   UpdateItemRequest
 } from '../../../core/api/item-api.service';
-import { LocationApiService } from '../../../core/api/location-api.service';
+import { LocationApiService, LocationTreeNode } from '../../../core/api/location-api.service';
 import { TelegramService } from '../../../telegram/telegram.service';
+import {
+  LocationAutocompleteComponent,
+  LocationSelection
+} from '../../../shared/components/location-autocomplete';
 
 /**
  * Form component for creating and editing items
@@ -35,7 +39,7 @@ import { TelegramService } from '../../../telegram/telegram.service';
 @Component({
   selector: 'app-item-form',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, LocationAutocompleteComponent],
   template: `
     <div class="item-form">
       <!-- Loading state for edit mode -->
@@ -79,15 +83,29 @@ import { TelegramService } from '../../../telegram/telegram.service';
           </button>
           <div class="item-form__header-content">
             <h1 class="item-form__title">{{ formTitle() }}</h1>
-            @if (locationName()) {
-              <p class="item-form__subtitle">
-                In: {{ locationName() }}
-              </p>
-            }
           </div>
         </header>
 
         <form class="item-form__form" (ngSubmit)="onSubmit()">
+          <!-- Location field -->
+          <div class="item-form__field">
+            <label class="item-form__label">Location *</label>
+            @if (isLoadingTree()) {
+              <div class="item-form__tree-loading">
+                <div class="item-form__tree-spinner"></div>
+                <span>Loading locations...</span>
+              </div>
+            } @else {
+              <app-location-autocomplete
+                [locations]="locationTree()"
+                [selectedLocationId]="resolvedLocationId ?? undefined"
+                [required]="true"
+                placeholder="Search for a location..."
+                (locationSelected)="onLocationSelected($event)"
+              />
+            }
+          </div>
+
           <!-- Name field -->
           <div class="item-form__field">
             <label for="name" class="item-form__label">Name *</label>
@@ -331,10 +349,26 @@ import { TelegramService } from '../../../telegram/telegram.service';
       color: var(--tg-theme-text-color);
     }
 
-    .item-form__subtitle {
+    /* Tree loading */
+    .item-form__tree-loading {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md);
+      background-color: var(--tg-theme-secondary-bg-color);
+      border-radius: var(--radius-md);
       font-size: 0.875rem;
       color: var(--tg-theme-hint-color);
-      margin-top: var(--spacing-xs);
+    }
+
+    .item-form__tree-spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--tg-theme-secondary-bg-color);
+      border-top-color: var(--tg-theme-button-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      flex-shrink: 0;
     }
 
     /* Form */
@@ -552,14 +586,20 @@ export class ItemFormComponent implements OnInit, OnDestroy {
   /** Error during save */
   readonly submitError = signal<string | null>(null);
 
-  /** Location name for display */
-  readonly locationName = signal<string | null>(null);
+  /** Location tree for autocomplete */
+  readonly locationTree = signal<LocationTreeNode[]>([]);
+
+  /** Loading state for location tree */
+  readonly isLoadingTree = signal(false);
 
   /** Existing item data for edit mode */
   private existingItem: ItemResponse | null = null;
 
-  /** Location ID for create (stored after resolving) */
-  private resolvedLocationId: string | null = null;
+  /** Location ID resolved from autocomplete selection */
+  resolvedLocationId: string | null = null;
+
+  /** Original location ID in edit mode (to detect changes) */
+  private originalLocationId: string | null = null;
 
   /** Check if in edit mode */
   readonly isEditMode = computed(() => !!this.id());
@@ -572,11 +612,13 @@ export class ItemFormComponent implements OnInit, OnDestroy {
     return 'Add Item';
   });
 
-  /** Check if form is valid */
+  /** Check if form is valid (includes location requirement) */
   readonly isValid = computed(() => {
     const n = this.name().trim();
     const q = this.quantity();
-    return n.length > 0 && n.length <= 200 && !this.nameError() && q >= 1 && !this.quantityError();
+    return n.length > 0 && n.length <= 200 && !this.nameError()
+      && q >= 1 && !this.quantityError()
+      && !!this.resolvedLocationId;
   });
 
   /** Check if running in Telegram */
@@ -589,12 +631,12 @@ export class ItemFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupMainButton();
+    this.loadLocationTree();
 
     if (this.isEditMode()) {
       this.loadItem();
     } else if (this.locationId()) {
       this.resolvedLocationId = this.locationId()!;
-      this.loadLocationInfo();
     }
   }
 
@@ -621,8 +663,8 @@ export class ItemFormComponent implements OnInit, OnDestroy {
           this.name.set(item.name);
           this.description.set(item.description || '');
           this.quantity.set(item.quantity);
-          this.locationName.set(item.locationName);
           this.resolvedLocationId = item.locationId;
+          this.originalLocationId = item.locationId;
           this.isLoadingItem.set(false);
           this.updateMainButton();
         },
@@ -634,23 +676,35 @@ export class ItemFormComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load location info for create mode
+   * Load the full location tree for autocomplete dropdown
    */
-  private loadLocationInfo(): void {
-    const locId = this.locationId();
-    if (!locId) return;
+  private loadLocationTree(): void {
+    this.isLoadingTree.set(true);
 
     this.locationApiService
-      .getLocation(locId)
+      .getLocationTree()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (location) => {
-          this.locationName.set(location.name);
+        next: (tree) => {
+          this.locationTree.set(tree);
+          this.isLoadingTree.set(false);
         },
         error: () => {
-          // Silently ignore - location name is just for display
+          this.isLoadingTree.set(false);
         }
       });
+  }
+
+  /**
+   * Handle location selection from autocomplete
+   */
+  onLocationSelected(selection: LocationSelection | null): void {
+    if (selection) {
+      this.resolvedLocationId = selection.id;
+    } else {
+      this.resolvedLocationId = null;
+    }
+    this.updateMainButton();
   }
 
   /**
@@ -792,8 +846,35 @@ export class ItemFormComponent implements OnInit, OnDestroy {
       quantity: this.quantity()
     };
 
+    const locationChanged = this.resolvedLocationId
+      && this.originalLocationId
+      && this.resolvedLocationId !== this.originalLocationId;
+
     this.itemApiService
       .updateItem(itemId, request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          if (locationChanged) {
+            this.moveItemAfterUpdate(itemId);
+          } else {
+            this.triggerHapticFeedback('success');
+            this.isSaving.set(false);
+            this.router.navigate(['/item', itemId]);
+          }
+        },
+        error: (err) => {
+          this.triggerHapticFeedback('error');
+          this.submitError.set(err.message || 'Failed to update item');
+          this.isSaving.set(false);
+          this.updateMainButton();
+        }
+      });
+  }
+
+  private moveItemAfterUpdate(itemId: string): void {
+    this.itemApiService
+      .moveItem(itemId, this.resolvedLocationId!)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -803,7 +884,7 @@ export class ItemFormComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.triggerHapticFeedback('error');
-          this.submitError.set(err.message || 'Failed to update item');
+          this.submitError.set(err.message || 'Item updated but failed to move to new location');
           this.isSaving.set(false);
           this.updateMainButton();
         }
