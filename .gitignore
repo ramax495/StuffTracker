@@ -1,0 +1,38 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Angular build output
+frontend/dist/
+frontend/.angular/
+
+# .NET build output
+backend/bin/
+backend/obj/
+backend/**/bin/
+backend/**/obj/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test results
+TestResults/
+coverage/
+frontend/coverage/
+
+# Secrets / credentials
+*.pfx
+*.p12
+*.key
