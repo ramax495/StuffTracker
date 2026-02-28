@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{097F94DC-295A-417B-B03E-0A493D577E57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StuffTracker.Api", "src\StuffTracker.Api\StuffTracker.Api.csproj", "{5CF9213C-0640-4C23-99D5-213F00AEE17A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{CEAC1740-A031-4CE4-A354-8C81EC95A3B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StuffTracker.Api.Contract", "tests\StuffTracker.Api.Contract\StuffTracker.Api.Contract.csproj", "{8855EE9A-367C-426B-B672-BFBA4EFBA8DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StuffTracker.Api.Integration", "tests\StuffTracker.Api.Integration\StuffTracker.Api.Integration.csproj", "{24903FC0-0C52-471F-9B1B-0874F7573609}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StuffTracker.Api.Unit", "tests\StuffTracker.Api.Unit\StuffTracker.Api.Unit.csproj", "{798FCD6A-9665-45E9-8493-2B28EFE660FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5CF9213C-0640-4C23-99D5-213F00AEE17A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CF9213C-0640-4C23-99D5-213F00AEE17A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CF9213C-0640-4C23-99D5-213F00AEE17A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CF9213C-0640-4C23-99D5-213F00AEE17A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8855EE9A-367C-426B-B672-BFBA4EFBA8DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8855EE9A-367C-426B-B672-BFBA4EFBA8DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8855EE9A-367C-426B-B672-BFBA4EFBA8DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8855EE9A-367C-426B-B672-BFBA4EFBA8DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24903FC0-0C52-471F-9B1B-0874F7573609}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24903FC0-0C52-471F-9B1B-0874F7573609}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24903FC0-0C52-471F-9B1B-0874F7573609}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24903FC0-0C52-471F-9B1B-0874F7573609}.Release|Any CPU.Build.0 = Release|Any CPU
+		{798FCD6A-9665-45E9-8493-2B28EFE660FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{798FCD6A-9665-45E9-8493-2B28EFE660FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{798FCD6A-9665-45E9-8493-2B28EFE660FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{798FCD6A-9665-45E9-8493-2B28EFE660FF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5CF9213C-0640-4C23-99D5-213F00AEE17A} = {097F94DC-295A-417B-B03E-0A493D577E57}
+		{8855EE9A-367C-426B-B672-BFBA4EFBA8DC} = {CEAC1740-A031-4CE4-A354-8C81EC95A3B1}
+		{24903FC0-0C52-471F-9B1B-0874F7573609} = {CEAC1740-A031-4CE4-A354-8C81EC95A3B1}
+		{798FCD6A-9665-45E9-8493-2B28EFE660FF} = {CEAC1740-A031-4CE4-A354-8C81EC95A3B1}
+	EndGlobalSection
+EndGlobal

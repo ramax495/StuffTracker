@@ -1,0 +1,35 @@
+# Git
+**/.git
+**/.gitignore
+**/.gitattributes
+
+# Build artifacts
+**/bin
+**/obj
+
+# IDE
+**/.vs
+**/.vscode
+**/.idea
+**/*.user
+**/*.suo
+
+# Node modules (if any)
+**/node_modules
+
+# Environment files
+**/appsettings.Development.json
+**/.env
+**/.env.local
+
+# Tests
+tests/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files
+**/Dockerfile
+**/.dockerignore
+**/docker-compose*

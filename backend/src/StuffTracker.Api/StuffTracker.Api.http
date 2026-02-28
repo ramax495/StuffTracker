@@ -1,0 +1,6 @@
+@StuffTracker.Api_HostAddress = http://localhost:5183
+
+GET {{StuffTracker.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
