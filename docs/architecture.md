@@ -88,7 +88,18 @@ frontend/src/app/
 ├── telegram/                       # @twa-dev/sdk wrapper — always use this, never window.Telegram
 │
 ├── shared/
-│   └── components/                 # Reusable UI components (spinners, dialogs, etc.)
+│   └── components/                 # Reusable UI components
+│       ├── breadcrumbs/            # Hierarchical navigation breadcrumbs
+│       ├── delete-confirmation/    # Confirmation dialog for destructive actions
+│       ├── empty-state/            # Empty state with icon, message, action
+│       ├── error-toast/            # Toast notifications (error, success, warning, info)
+│       ├── item-card/              # Compact item display card
+│       ├── item-list/              # Item list container
+│       ├── loading-spinner/        # Loading indicator (small/medium/large)
+│       ├── location-autocomplete/  # Text input with filtered dropdown for location selection
+│       ├── location-card/          # Compact location display card
+│       ├── location-picker/        # Bottom-sheet tree picker for location filter
+│       └── search-result-item/     # Search result display
 │
 └── features/
     ├── home/                       # Root location list
