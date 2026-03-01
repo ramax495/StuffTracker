@@ -11,7 +11,7 @@
  * - Desktop: >= 768px (generous indentation, 16px per level)
  *
  * Touch targets: All interactive elements are >= 44px height for mobile tap comfort
- * Theme colors: Uses Telegram CSS custom properties (--tg-text-color, --tg-link-color, etc.)
+ * Theme colors: Uses Telegram CSS custom properties (--tg-theme-text-color, --tg-theme-link-color, etc.)
  */
 
 .location-hierarchy {
@@ -28,7 +28,7 @@
     gap: 0;
     font-size: 0.9375rem;
     line-height: 1.5;
-    color: var(--tg-text-color, #000);
+    color: var(--tg-theme-text-color, #000);
 
     /**
      * Breakpoint: Small mobile (< 360px)
@@ -104,7 +104,7 @@
    * Uses text color with opacity for better contrast in both light and dark themes
    */
   .breadcrumb-separator {
-    color: var(--tg-text-color, #000);
+    color: var(--tg-theme-text-color, #000);
     opacity: 0.55;  // Semi-transparent: light gray in dark theme, dark gray in light theme
     margin-right: 0.5rem;
     margin-left: 0;
@@ -152,7 +152,7 @@
    */
   .breadcrumb-item {
     display: block;
-    color: var(--tg-text-color, #000);
+    color: var(--tg-theme-text-color, #000);
     min-height: 44px;
     display: flex;
     align-items: center;
@@ -163,7 +163,7 @@
     // Style for clickable breadcrumbs (parent locations)
     &--link {
       cursor: pointer;
-      color: var(--tg-link-color, #0088cc);
+      color: var(--tg-theme-link-color, #0088cc);
       font-weight: 500;
 
       &:hover {
@@ -177,7 +177,7 @@
       }
 
       &:focus-visible {
-        outline: 2px solid var(--tg-link-color, #0088cc);
+        outline: 2px solid var(--tg-theme-link-color, #0088cc);
         outline-offset: -2px;
       }
 
@@ -190,7 +190,7 @@
     // Style for current location (last breadcrumb) - non-clickable
     &--current {
       font-weight: 600;
-      color: var(--tg-text-color, #000);
+      color: var(--tg-theme-text-color, #000);
       cursor: default;
       background-color: transparent;
 
@@ -205,7 +205,7 @@
    * Empty state - no locations available
    */
   .breadcrumb-empty {
-    color: var(--tg-hint-color, rgba(0, 0, 0, 0.4));
+    color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.4));
     font-style: italic;
     font-size: 0.875rem;
     padding: 0.5rem 0;
