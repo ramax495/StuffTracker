@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs';
 import { ItemApiService, ItemDetail } from '../../../core/api/item-api.service';
+import { LocationApiService } from '../../../core/api/location-api.service';
 import { TelegramService } from '../../../telegram/telegram.service';
 import { MoveItemModalComponent } from '../move-item-modal';
 
@@ -63,7 +64,7 @@ import { MoveItemModalComponent } from '../move-item-modal';
         <!-- Breadcrumbs -->
         <app-breadcrumbs
           [breadcrumbs]="getBreadcrumbs()"
-          [locationIds]="[]"
+          [locationIds]="breadcrumbIds()"
         />
 
         <!-- Header -->
@@ -482,6 +483,7 @@ import { MoveItemModalComponent } from '../move-item-modal';
 export class ItemDetailComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly itemApiService = inject(ItemApiService);
+  private readonly locationApiService = inject(LocationApiService);
   private readonly telegramService = inject(TelegramService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -500,6 +502,9 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
   /** Whether to show the move item modal */
   readonly showMoveModal = signal(false);
 
+  /** Location breadcrumb IDs for clickable navigation — loaded after item */
+  readonly breadcrumbIds = signal<string[]>([]);
+
   ngOnInit(): void {
     this.loadItem();
   }
@@ -514,6 +519,7 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
   loadItem(): void {
     this.isLoading.set(true);
     this.error.set(null);
+    this.breadcrumbIds.set([]);
 
     this.itemApiService
       .getItem(this.id())
@@ -522,6 +528,21 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
         next: (item) => {
           this.item.set(item);
           this.isLoading.set(false);
+
+          // Non-blocking: fetch location to get breadcrumb IDs for clickable navigation
+          this.locationApiService
+            .getLocation(item.locationId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (loc) => {
+                console.debug('[ItemDetail] Breadcrumb IDs loaded for location', item.locationId, loc.breadcrumbIds);
+                this.breadcrumbIds.set(loc.breadcrumbIds);
+              },
+              error: (err) => {
+                console.warn('[ItemDetail] Failed to load breadcrumb IDs, breadcrumbs will be non-clickable', err);
+                // Graceful degradation: breadcrumbs still display as text
+              }
+            });
         },
         error: (err) => {
           this.error.set(err.message || 'Failed to load item');
