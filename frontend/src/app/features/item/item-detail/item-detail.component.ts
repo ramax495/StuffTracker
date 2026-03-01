@@ -11,6 +11,7 @@ import {
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs';
+import { LocationHierarchyComponent } from '../components/location-hierarchy/location-hierarchy.component';
 import { ItemApiService, ItemDetail } from '../../../core/api/item-api.service';
 import { LocationApiService } from '../../../core/api/location-api.service';
 import { TelegramService } from '../../../telegram/telegram.service';
@@ -31,7 +32,7 @@ import { MoveItemModalComponent } from '../move-item-modal';
 @Component({
   selector: 'app-item-detail',
   standalone: true,
-  imports: [BreadcrumbsComponent, MoveItemModalComponent],
+  imports: [BreadcrumbsComponent, LocationHierarchyComponent, MoveItemModalComponent],
   template: `
     <div class="item-detail">
       <!-- Loading state -->
@@ -116,7 +117,7 @@ import { MoveItemModalComponent } from '../move-item-modal';
             </div>
           </div>
 
-          <!-- Location -->
+          <!-- Location Hierarchy -->
           <div class="item-detail__property">
             <div class="item-detail__property-icon">
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -125,13 +126,12 @@ import { MoveItemModalComponent } from '../move-item-modal';
             </div>
             <div class="item-detail__property-content">
               <span class="item-detail__property-label">Location</span>
-              <button
-                type="button"
-                class="item-detail__property-link"
-                (click)="navigateToLocation()"
-              >
-                {{ item()!.locationName }}
-              </button>
+              <app-location-hierarchy
+                [breadcrumbs]="item()!.locationPath"
+                [breadcrumbIds]="breadcrumbIds()"
+                [currentLocationId]="item()!.locationId"
+                (locationSelected)="navigateToLocationHierarchy($event)"
+              />
             </div>
           </div>
 
@@ -579,6 +579,14 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
     if (currentItem) {
       this.router.navigate(['/location', currentItem.locationId]);
     }
+  }
+
+  /**
+   * Navigate to a parent location from the location hierarchy breadcrumbs
+   */
+  navigateToLocationHierarchy(locationId: string): void {
+    console.debug(`[ItemDetail] Navigating from breadcrumb to location: ${locationId}`);
+    this.router.navigate(['/location', locationId]);
   }
 
   /**

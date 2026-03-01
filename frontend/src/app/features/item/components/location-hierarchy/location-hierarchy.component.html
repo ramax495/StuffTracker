@@ -1,0 +1,39 @@
+<div class="location-hierarchy">
+  @if (breadcrumbs().length > 0) {
+    <div class="breadcrumb-list">
+      @for (breadcrumb of breadcrumbs(); track $index) {
+        <ng-container>
+          <!-- Separator between breadcrumbs (except before first) -->
+          @if ($index > 0) {
+            <span class="separator">&gt;</span>
+          }
+
+          <!-- Breadcrumb item -->
+          @if (isLastBreadcrumb($index)) {
+            <!-- Last breadcrumb (current location) - non-clickable -->
+            <span class="breadcrumb-item breadcrumb-item--current">
+              {{ breadcrumb }}
+            </span>
+          } @else if (hasNavigationId($index)) {
+            <!-- Clickable parent breadcrumb -->
+            <button
+              type="button"
+              class="breadcrumb-item breadcrumb-item--link"
+              (click)="navigateToLocation(getNavigationId($index), breadcrumb)"
+            >
+              {{ breadcrumb }}
+            </button>
+          } @else {
+            <!-- Non-clickable breadcrumb (no ID available) -->
+            <span class="breadcrumb-item">
+              {{ breadcrumb }}
+            </span>
+          }
+        </ng-container>
+      }
+    </div>
+  } @else {
+    <!-- Empty state -->
+    <div class="breadcrumb-empty">No location</div>
+  }
+</div>

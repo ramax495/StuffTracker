@@ -174,6 +174,71 @@ location.Name = req.Name;
 await _db.SaveChangesAsync(ct);
 ```
 
+### Responsive Components — LocationHierarchyComponent Example
+
+For components that must work across mobile (360px), tablet (768px), and desktop (1200px+) viewports, we use **CSS media queries with signal-driven inputs**.
+
+**LocationHierarchyComponent** pattern:
+
+```typescript
+@Component({
+  selector: 'app-location-hierarchy',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './location-hierarchy.component.html',
+  styleUrl: './location-hierarchy.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class LocationHierarchyComponent {
+  readonly breadcrumbs = input<string[]>([]);    // Signal inputs
+  readonly breadcrumbIds = input<string[]>([]);
+  readonly currentLocationId = input<string>('');
+
+  readonly locationSelected = output<string>();  // Event output
+
+  navigateToLocation(id: string): void {
+    // Emit navigation event — parent handles routing
+    this.locationSelected.emit(id);
+  }
+}
+```
+
+**CSS Responsive Breakpoints** (in SCSS):
+
+```scss
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
+  // Mobile: < 480px — compact spacing, smaller font
+  @media (max-width: 479px) {
+    font-size: 0.875rem;
+    gap: 0.125rem;
+  }
+
+  // Tablet: 480px - 767px — balanced
+  @media (min-width: 480px) and (max-width: 767px) {
+    font-size: 0.9375rem;
+    gap: 0.25rem;
+  }
+
+  // Desktop: >= 768px — generous spacing
+  @media (min-width: 768px) {
+    font-size: 1rem;
+    gap: 0.375rem;
+  }
+}
+```
+
+**Key decisions**:
+- **Inputs as Signals**: Reactive, auto-update on parent changes
+- **Output EventEmitter**: Parent handles navigation — component is presentational
+- **Touch targets ≥ 44px**: Mobile tap comfort (buttons use `min-height: 44px`)
+- **Text truncation on mobile**: Long names abbreviate with `max-width: 8rem; text-overflow: ellipsis`
+- **Telegram theme colors**: Use CSS custom properties (`--tg-text-color`, `--tg-link-color`, etc.)
+- **Flex-wrap for multiline**: Breadcrumbs naturally wrap on small screens
+
 ---
 
 ## See Also

@@ -1,0 +1,155 @@
+/**
+ * LocationHierarchyComponent Responsive Styles
+ *
+ * Breakpoints:
+ * - Small mobile: < 360px (compact layout, abbreviations)
+ * - Mobile: 360px - 479px (standard mobile)
+ * - Tablet: 480px - 767px (medium screens)
+ * - Desktop: >= 768px (large screens)
+ *
+ * Touch targets: All interactive elements are >= 44px height for mobile tap comfort
+ * Theme colors: Uses Telegram CSS custom properties (--tg-text-color, --tg-link-color, etc.)
+ */
+
+.location-hierarchy {
+  width: 100%;
+  padding: 0;
+
+  /**
+   * Breadcrumb list container
+   * Uses flexbox with wrap for natural responsive behavior
+   */
+  .breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--tg-text-color, #000);
+
+    /**
+     * Breakpoint: Small mobile (< 360px)
+     * - Very compact: 0.8125rem font, minimal gap
+     * - Text truncation enabled to prevent overflow
+     */
+    @media (max-width: 359px) {
+      font-size: 0.8125rem;
+      gap: 0.0625rem;
+    }
+
+    /**
+     * Breakpoint: Mobile (360px - 479px)
+     * - Standard mobile: 0.875rem font, narrow gap
+     * - Breadcrumbs still wrap as needed
+     */
+    @media (min-width: 360px) and (max-width: 479px) {
+      font-size: 0.875rem;
+      gap: 0.125rem;
+    }
+
+    /**
+     * Breakpoint: Tablet (480px - 767px)
+     * - Medium screens: 0.9375rem font, standard gap
+     * - More comfortable spacing than mobile
+     */
+    @media (min-width: 480px) and (max-width: 767px) {
+      font-size: 0.9375rem;
+      gap: 0.25rem;
+    }
+
+    /**
+     * Breakpoint: Desktop (>= 768px)
+     * - Large screens: 1rem font, generous gap
+     * - Full text visible without truncation
+     */
+    @media (min-width: 768px) {
+      font-size: 1rem;
+      gap: 0.375rem;
+    }
+  }
+
+  .separator {
+    color: var(--tg-hint-color, rgba(0, 0, 0, 0.4));
+    margin: 0 0.125rem;
+    font-size: 0.875em;
+    flex-shrink: 0; // Prevent separator from shrinking
+    -webkit-user-select: none;
+    user-select: none;
+
+    @media (max-width: 479px) {
+      margin: 0 0.0625rem;
+    }
+  }
+
+  .breadcrumb-item {
+    display: inline-block;
+    color: var(--tg-text-color, #000);
+    word-break: break-word;
+    // Truncate long names on very small screens
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (min-width: 480px) {
+      max-width: none;
+    }
+
+    &--link {
+      background: none;
+      border: none;
+      padding: 0.25rem 0.125rem;
+      margin: 0;
+      font-family: inherit;
+      font-size: inherit;
+      color: var(--tg-link-color, #0088cc);
+      cursor: pointer;
+      text-decoration: none;
+      -webkit-user-select: none;
+      user-select: none;
+      transition: opacity 0.15s ease, background-color 0.15s ease;
+      border-radius: 0.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      white-space: nowrap;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      &:active {
+        opacity: 0.65;
+        background-color: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.05));
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--tg-link-color, #0088cc);
+        outline-offset: 0px;
+      }
+
+      // Prevent text selection when tapping
+      -webkit-touch-callout: none;
+    }
+
+    &--current {
+      font-weight: 600;
+      color: var(--tg-text-color, #000);
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0.25rem 0.125rem;
+    }
+  }
+
+  .breadcrumb-empty {
+    color: var(--tg-hint-color, rgba(0, 0, 0, 0.4));
+    font-style: italic;
+    font-size: 0.875rem;
+    padding: 0.25rem 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
