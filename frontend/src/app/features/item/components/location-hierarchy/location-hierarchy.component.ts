@@ -77,18 +77,21 @@ export class LocationHierarchyComponent {
     // Update lastBreadcrumbIndex when breadcrumbs change
     // This helps identify which items are clickable vs not
     this.trackBreadcrumbsLength();
+    console.debug('[LocationHierarchyComponent] Initialized with vertical hierarchy layout (mobile-optimized)');
   }
 
   private trackBreadcrumbsLength(): void {
     const breadcrumbs = this.breadcrumbs();
     if (breadcrumbs.length > 0) {
-      console.debug(
-        '[LocationHierarchyComponent] Breadcrumbs updated:',
-        breadcrumbs,
-        'IDs:',
-        this.breadcrumbIds()
-      );
-      this.lastBreadcrumbIndex.set(breadcrumbs.length - 1);
+      const lastIndex = breadcrumbs.length - 1;
+      console.debug('[LocationHierarchyComponent] Vertical breadcrumb hierarchy rendering', {
+        level_count: breadcrumbs.length,
+        hierarchy: breadcrumbs.join(' > '),
+        ids_available: this.breadcrumbIds().length > 0,
+        depth_levels: Array.from({ length: lastIndex }, (_, i) => `depth-${i}`),
+        message: `Rendering ${breadcrumbs.length}-level hierarchy on ${lastIndex === 0 ? 'single' : 'multi'}-level location`
+      });
+      this.lastBreadcrumbIndex.set(lastIndex);
     }
   }
 

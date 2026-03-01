@@ -174,11 +174,36 @@ location.Name = req.Name;
 await _db.SaveChangesAsync(ct);
 ```
 
-### Responsive Components — LocationHierarchyComponent Example
+### Mobile-First Hierarchy Design — LocationHierarchyComponent
 
-For components that must work across mobile (360px), tablet (768px), and desktop (1200px+) viewports, we use **CSS media queries with signal-driven inputs**.
+The **LocationHierarchyComponent** displays location breadcrumbs as a **vertical indented list** optimized for mobile-first responsive design.
 
-**LocationHierarchyComponent** pattern:
+#### Problem & Solution
+
+On mobile (< 480px), horizontal breadcrumb layouts with flex-wrap create poor UX:
+- Horizontal scroll is awkward on mobile
+- Compact spacing makes text hard to read
+- Hierarchy isn't visually clear
+
+**Solution**: Vertical list with depth-based indentation that scales responsively.
+
+#### Visual Example
+
+```
+Mobile (< 480px):
+> Home
+  > Kitchen
+    > Drawer (current)
+
+Tablet+ (≥ 480px):
+> Home
+  > Kitchen
+    > Drawer (current)
+```
+
+Both show the same structure — text truncation and indentation adjust per breakpoint.
+
+#### TypeScript Component
 
 ```typescript
 @Component({
@@ -190,54 +215,188 @@ For components that must work across mobile (360px), tablet (768px), and desktop
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LocationHierarchyComponent {
-  readonly breadcrumbs = input<string[]>([]);    // Signal inputs
-  readonly breadcrumbIds = input<string[]>([]);
-  readonly currentLocationId = input<string>('');
+  readonly breadcrumbs = input<string[]>([]);      // Signal inputs
+  readonly breadcrumbIds = input<string[]>([]);    // Location IDs for clickable navigation
+  readonly currentLocationId = input<string>('');  // ID of current location (last breadcrumb)
 
-  readonly locationSelected = output<string>();  // Event output
+  readonly locationSelected = output<string>();   // Emitted when user navigates to parent
 
-  navigateToLocation(id: string): void {
-    // Emit navigation event — parent handles routing
-    this.locationSelected.emit(id);
+  navigateToLocation(locationId: string, breadcrumbName: string): void {
+    this.triggerHapticFeedback();
+    this.locationSelected.emit(locationId);        // Parent handles routing
   }
 }
 ```
 
-**CSS Responsive Breakpoints** (in SCSS):
+#### HTML Template (Vertical Layout)
+
+```html
+<div class="location-hierarchy">
+  @if (breadcrumbs().length > 0) {
+    <div class="breadcrumb-list">
+      @for (breadcrumb of breadcrumbs(); track $index) {
+        <!-- Current location (last breadcrumb) - non-clickable -->
+        @if (isLastBreadcrumb($index)) {
+          <div
+            class="breadcrumb-item breadcrumb-item--current"
+            [ngClass]="'breadcrumb-depth-' + $index"
+          >
+            <span class="breadcrumb-separator">&gt;</span>
+            <span class="breadcrumb-text">{{ breadcrumb }}</span>
+          </div>
+        }
+        <!-- Parent locations - clickable -->
+        @else if (hasNavigationId($index)) {
+          <button
+            type="button"
+            class="breadcrumb-item breadcrumb-item--link"
+            [ngClass]="'breadcrumb-depth-' + $index"
+            (click)="navigateToLocation(getNavigationId($index), breadcrumb)"
+          >
+            <span class="breadcrumb-separator">&gt;</span>
+            <span class="breadcrumb-text">{{ breadcrumb }}</span>
+          </button>
+        }
+      }
+    </div>
+  } @else {
+    <div class="breadcrumb-empty">No location</div>
+  }
+</div>
+```
+
+#### SCSS — Responsive Indentation
 
 ```scss
+.location-hierarchy {
+  width: 100%;
+  padding: 0;
+}
+
 .breadcrumb-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
+  flex-direction: column;  // Vertical layout
+  gap: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--tg-text-color, #000);
 
-  // Mobile: < 480px — compact spacing, smaller font
-  @media (max-width: 479px) {
-    font-size: 0.875rem;
-    gap: 0.125rem;
+  // Breakpoint 1: < 360px (small mobile)
+  @media (max-width: 359px) {
+    font-size: 0.8125rem;
+    .breadcrumb-depth-0 { margin-left: 0; }
+    .breadcrumb-depth-1 { margin-left: 12px; }
+    .breadcrumb-depth-2 { margin-left: 24px; }
+    .breadcrumb-depth-3 { margin-left: 36px; }
+    .breadcrumb-depth-4 { margin-left: 48px; }
+    .breadcrumb-depth-5 { margin-left: 60px; }
   }
 
-  // Tablet: 480px - 767px — balanced
+  // Breakpoint 2: 360px - 479px (mobile)
+  @media (min-width: 360px) and (max-width: 479px) {
+    font-size: 0.875rem;
+    .breadcrumb-depth-0 { margin-left: 0; }
+    .breadcrumb-depth-1 { margin-left: 12px; }
+    .breadcrumb-depth-2 { margin-left: 24px; }
+    // ... etc
+  }
+
+  // Breakpoint 3: 480px - 767px (tablet)
   @media (min-width: 480px) and (max-width: 767px) {
     font-size: 0.9375rem;
-    gap: 0.25rem;
+    .breadcrumb-depth-0 { margin-left: 0; }
+    .breadcrumb-depth-1 { margin-left: 16px; }
+    .breadcrumb-depth-2 { margin-left: 32px; }
+    // ... etc (16px per level)
   }
 
-  // Desktop: >= 768px — generous spacing
+  // Breakpoint 4: >= 768px (desktop)
   @media (min-width: 768px) {
     font-size: 1rem;
-    gap: 0.375rem;
+    .breadcrumb-depth-0 { margin-left: 0; }
+    .breadcrumb-depth-1 { margin-left: 16px; }
+    .breadcrumb-depth-2 { margin-left: 32px; }
+    // ... etc (16px per level)
+  }
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  min-height: 44px;           // Touch target accessibility
+  padding: 0.5rem 0.25rem;
+  color: var(--tg-text-color, #000);
+  transition: background-color 0.15s ease;
+  border-radius: 0.25rem;
+
+  // Clickable parent locations
+  &--link {
+    cursor: pointer;
+    color: var(--tg-link-color, #0088cc);
+    font-weight: 500;
+
+    &:hover {
+      background-color: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.05));
+      opacity: 0.9;
+    }
+
+    &:active {
+      opacity: 0.7;
+      background-color: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.1));
+    }
+  }
+
+  // Current location (non-clickable, bold)
+  &--current {
+    font-weight: 600;
+    color: var(--tg-text-color, #000);
+    cursor: default;
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+}
+
+.breadcrumb-text {
+  word-break: break-word;
+  white-space: normal;
+
+  // Truncate on very small screens
+  @media (max-width: 359px) {
+    max-width: 6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
+
+  @media (min-width: 360px) and (max-width: 479px) {
+    max-width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
+
+  // Full text on larger screens
+  @media (min-width: 480px) {
+    max-width: none;
+    display: inline;
   }
 }
 ```
 
-**Key decisions**:
-- **Inputs as Signals**: Reactive, auto-update on parent changes
-- **Output EventEmitter**: Parent handles navigation — component is presentational
-- **Touch targets ≥ 44px**: Mobile tap comfort (buttons use `min-height: 44px`)
-- **Text truncation on mobile**: Long names abbreviate with `max-width: 8rem; text-overflow: ellipsis`
-- **Telegram theme colors**: Use CSS custom properties (`--tg-text-color`, `--tg-link-color`, etc.)
-- **Flex-wrap for multiline**: Breadcrumbs naturally wrap on small screens
+#### Key Design Decisions
+
+| Decision | Reason |
+|----------|--------|
+| **Vertical flex layout** | Natural scrolling direction on mobile (vertical > horizontal) |
+| **Depth-based indentation** | Visual hierarchy without extra icons; CSS-only solution |
+| **Responsive indentation** | 12px/level on mobile (compact), 16px/level on tablet+ (readable) |
+| **Touch targets ≥ 44px** | Mobile tap comfort — all breadcrumbs have `min-height: 44px` |
+| **Text truncation on mobile** | 6rem (< 360px), 10rem (360-479px), full (480px+) |
+| **Button for parent locations** | Semantically correct — clickable items use `<button>` |
+| **No horizontal scroll** | Eliminates UX friction on mobile — full hierarchy always visible |
+| **Telegram theme colors** | CSS custom properties ensure theme consistency |
 
 ---
 

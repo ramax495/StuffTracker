@@ -1,35 +1,40 @@
 <div class="location-hierarchy">
   @if (breadcrumbs().length > 0) {
     <div class="breadcrumb-list">
+      <!-- Vertical hierarchy list with indentation for each depth level -->
       @for (breadcrumb of breadcrumbs(); track $index) {
-        <ng-container>
-          <!-- Separator between breadcrumbs (except before first) -->
-          @if ($index > 0) {
-            <span class="separator">&gt;</span>
-          }
-
-          <!-- Breadcrumb item -->
-          @if (isLastBreadcrumb($index)) {
-            <!-- Last breadcrumb (current location) - non-clickable -->
-            <span class="breadcrumb-item breadcrumb-item--current">
-              {{ breadcrumb }}
-            </span>
-          } @else if (hasNavigationId($index)) {
-            <!-- Clickable parent breadcrumb -->
-            <button
-              type="button"
-              class="breadcrumb-item breadcrumb-item--link"
-              (click)="navigateToLocation(getNavigationId($index), breadcrumb)"
-            >
-              {{ breadcrumb }}
-            </button>
-          } @else {
-            <!-- Non-clickable breadcrumb (no ID available) -->
-            <span class="breadcrumb-item">
-              {{ breadcrumb }}
-            </span>
-          }
-        </ng-container>
+        <!-- Current location (last breadcrumb) - non-clickable, bold -->
+        @if (isLastBreadcrumb($index)) {
+          <div
+            class="breadcrumb-item breadcrumb-item--current"
+            [ngClass]="'breadcrumb-depth-' + $index"
+          >
+            <span class="breadcrumb-separator">&gt;</span>
+            <span class="breadcrumb-text">{{ breadcrumb }}</span>
+          </div>
+        }
+        <!-- Parent locations - clickable if IDs available -->
+        @else if (hasNavigationId($index)) {
+          <button
+            type="button"
+            class="breadcrumb-item breadcrumb-item--link"
+            [ngClass]="'breadcrumb-depth-' + $index"
+            (click)="navigateToLocation(getNavigationId($index), breadcrumb)"
+          >
+            <span class="breadcrumb-separator">&gt;</span>
+            <span class="breadcrumb-text">{{ breadcrumb }}</span>
+          </button>
+        }
+        <!-- Fallback - non-clickable if no ID -->
+        @else {
+          <div
+            class="breadcrumb-item"
+            [ngClass]="'breadcrumb-depth-' + $index"
+          >
+            <span class="breadcrumb-separator">&gt;</span>
+            <span class="breadcrumb-text">{{ breadcrumb }}</span>
+          </div>
+        }
       }
     </div>
   } @else {

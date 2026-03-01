@@ -1,11 +1,14 @@
 /**
  * LocationHierarchyComponent Responsive Styles
  *
+ * Mobile-First Vertical Hierarchy Layout
+ * Displays location hierarchy as a vertical list with indentation
+ *
  * Breakpoints:
- * - Small mobile: < 360px (compact layout, abbreviations)
- * - Mobile: 360px - 479px (standard mobile)
- * - Tablet: 480px - 767px (medium screens)
- * - Desktop: >= 768px (large screens)
+ * - Small mobile: < 360px (compact indentation, 12px per level)
+ * - Mobile: 360px - 479px (standard indentation, 12px per level)
+ * - Tablet: 480px - 767px (comfortable indentation, 16px per level)
+ * - Desktop: >= 768px (generous indentation, 16px per level)
  *
  * Touch targets: All interactive elements are >= 44px height for mobile tap comfort
  * Theme colors: Uses Telegram CSS custom properties (--tg-text-color, --tg-link-color, etc.)
@@ -17,137 +20,193 @@
 
   /**
    * Breadcrumb list container
-   * Uses flexbox with wrap for natural responsive behavior
+   * Vertical layout - each breadcrumb on its own line with indentation
    */
   .breadcrumb-list {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem;
+    flex-direction: column;
+    gap: 0;
     font-size: 0.9375rem;
     line-height: 1.5;
     color: var(--tg-text-color, #000);
 
     /**
      * Breakpoint: Small mobile (< 360px)
-     * - Very compact: 0.8125rem font, minimal gap
-     * - Text truncation enabled to prevent overflow
+     * - Very compact indentation: 12px per level
+     * - Smaller font: 0.875rem
      */
     @media (max-width: 359px) {
       font-size: 0.8125rem;
-      gap: 0.0625rem;
+
+      // Indentation per depth level: 12px per level
+      .breadcrumb-depth-0 { margin-left: 0; }
+      .breadcrumb-depth-1 { margin-left: 12px; }
+      .breadcrumb-depth-2 { margin-left: 24px; }
+      .breadcrumb-depth-3 { margin-left: 36px; }
+      .breadcrumb-depth-4 { margin-left: 48px; }
+      .breadcrumb-depth-5 { margin-left: 60px; }
     }
 
     /**
      * Breakpoint: Mobile (360px - 479px)
-     * - Standard mobile: 0.875rem font, narrow gap
-     * - Breadcrumbs still wrap as needed
+     * - Standard indentation: 12px per level
+     * - Standard font: 0.875rem
      */
     @media (min-width: 360px) and (max-width: 479px) {
       font-size: 0.875rem;
-      gap: 0.125rem;
+
+      // Indentation per depth level: 12px per level
+      .breadcrumb-depth-0 { margin-left: 0; }
+      .breadcrumb-depth-1 { margin-left: 12px; }
+      .breadcrumb-depth-2 { margin-left: 24px; }
+      .breadcrumb-depth-3 { margin-left: 36px; }
+      .breadcrumb-depth-4 { margin-left: 48px; }
+      .breadcrumb-depth-5 { margin-left: 60px; }
     }
 
     /**
      * Breakpoint: Tablet (480px - 767px)
-     * - Medium screens: 0.9375rem font, standard gap
-     * - More comfortable spacing than mobile
+     * - Comfortable indentation: 16px per level
+     * - Normal font: 0.9375rem
      */
     @media (min-width: 480px) and (max-width: 767px) {
       font-size: 0.9375rem;
-      gap: 0.25rem;
+
+      // Indentation per depth level: 16px per level
+      .breadcrumb-depth-0 { margin-left: 0; }
+      .breadcrumb-depth-1 { margin-left: 16px; }
+      .breadcrumb-depth-2 { margin-left: 32px; }
+      .breadcrumb-depth-3 { margin-left: 48px; }
+      .breadcrumb-depth-4 { margin-left: 64px; }
+      .breadcrumb-depth-5 { margin-left: 80px; }
     }
 
     /**
      * Breakpoint: Desktop (>= 768px)
-     * - Large screens: 1rem font, generous gap
-     * - Full text visible without truncation
+     * - Generous indentation: 16px per level
+     * - Larger font: 1rem
      */
     @media (min-width: 768px) {
       font-size: 1rem;
-      gap: 0.375rem;
+
+      // Indentation per depth level: 16px per level
+      .breadcrumb-depth-0 { margin-left: 0; }
+      .breadcrumb-depth-1 { margin-left: 16px; }
+      .breadcrumb-depth-2 { margin-left: 32px; }
+      .breadcrumb-depth-3 { margin-left: 48px; }
+      .breadcrumb-depth-4 { margin-left: 64px; }
+      .breadcrumb-depth-5 { margin-left: 80px; }
     }
   }
 
-  .separator {
+  /**
+   * Separator (chevron) before each breadcrumb
+   */
+  .breadcrumb-separator {
     color: var(--tg-hint-color, rgba(0, 0, 0, 0.4));
-    margin: 0 0.125rem;
+    margin-right: 0.5rem;
+    margin-left: 0;
     font-size: 0.875em;
-    flex-shrink: 0; // Prevent separator from shrinking
+    flex-shrink: 0;
+    display: inline-block;
     -webkit-user-select: none;
     user-select: none;
+    width: 0.75rem;
+    text-align: center;
+  }
 
-    @media (max-width: 479px) {
-      margin: 0 0.0625rem;
+  /**
+   * Breadcrumb text container
+   */
+  .breadcrumb-text {
+    word-break: break-word;
+    white-space: normal;
+
+    // Truncate long names on very small screens
+    @media (max-width: 359px) {
+      max-width: 6rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+    }
+
+    @media (min-width: 360px) and (max-width: 479px) {
+      max-width: 10rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+    }
+
+    // Full text visible on larger screens
+    @media (min-width: 480px) {
+      max-width: none;
+      display: inline;
     }
   }
 
+  /**
+   * Individual breadcrumb items
+   * Vertical layout - each on its own line
+   */
   .breadcrumb-item {
-    display: inline-block;
+    display: block;
     color: var(--tg-text-color, #000);
-    word-break: break-word;
-    // Truncate long names on very small screens
-    max-width: 8rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.15s ease;
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.25rem;
 
-    @media (min-width: 480px) {
-      max-width: none;
-    }
-
+    // Style for clickable breadcrumbs (parent locations)
     &--link {
-      background: none;
-      border: none;
-      padding: 0.25rem 0.125rem;
-      margin: 0;
-      font-family: inherit;
-      font-size: inherit;
-      color: var(--tg-link-color, #0088cc);
       cursor: pointer;
-      text-decoration: none;
-      -webkit-user-select: none;
-      user-select: none;
-      transition: opacity 0.15s ease, background-color 0.15s ease;
-      border-radius: 0.25rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      white-space: nowrap;
+      color: var(--tg-link-color, #0088cc);
+      font-weight: 500;
 
       &:hover {
-        opacity: 0.8;
+        background-color: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.05));
+        opacity: 0.9;
       }
 
       &:active {
-        opacity: 0.65;
-        background-color: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.05));
+        opacity: 0.7;
+        background-color: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.1));
       }
 
       &:focus-visible {
         outline: 2px solid var(--tg-link-color, #0088cc);
-        outline-offset: 0px;
+        outline-offset: -2px;
       }
 
-      // Prevent text selection when tapping
+      // Touch feedback
+      -webkit-user-select: none;
+      user-select: none;
       -webkit-touch-callout: none;
     }
 
+    // Style for current location (last breadcrumb) - non-clickable
     &--current {
       font-weight: 600;
       color: var(--tg-text-color, #000);
-      display: inline-flex;
-      align-items: center;
-      min-height: 44px;
-      padding: 0.25rem 0.125rem;
+      cursor: default;
+      background-color: transparent;
+
+      &:hover {
+        background-color: transparent;
+        opacity: 1;
+      }
     }
   }
 
+  /**
+   * Empty state - no locations available
+   */
   .breadcrumb-empty {
     color: var(--tg-hint-color, rgba(0, 0, 0, 0.4));
     font-style: italic;
     font-size: 0.875rem;
-    padding: 0.25rem 0;
+    padding: 0.5rem 0;
     min-height: 44px;
     display: flex;
     align-items: center;
