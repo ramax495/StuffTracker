@@ -101,9 +101,11 @@
 
   /**
    * Separator (chevron) before each breadcrumb
+   * Uses text color with opacity for better contrast in both light and dark themes
    */
   .breadcrumb-separator {
-    color: var(--tg-hint-color, rgba(0, 0, 0, 0.4));
+    color: var(--tg-text-color, #000);
+    opacity: 0.55;  // Semi-transparent: light gray in dark theme, dark gray in light theme
     margin-right: 0.5rem;
     margin-left: 0;
     font-size: 0.875em;
